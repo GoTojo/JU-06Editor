@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<title>JU-06Editor</title>
+<meta charset="utf-8">
+<meta name="copyright" content="Copyright &copy; 2016 gotojo All Rights Reserved.">
+<link rel="stylesheet" href="slider/slider.css" type="text/css" />
+<script src="button/ju06button.js"></script>
+<script src="disp/ju06disp.js"></script>
+<script src='js/ju06panel.js'></script>
+<script src='js/mididevice.js'></script>
+<script src="prm/ju06patch.js"></script>
+
+<script type="text/javascript">
+	var seq;
+	function onMIDIMessage(event) {
+		var message=Math.floor(event.receivedTime) + ": ";
+		if (event.data[0]==0xf8) return;
+		panel.midiin(event);
+		for (var i=0; i<event.data.length; i++) message+=event.data[i].toString(16)+" ";
+		// console.log(message);
+	}
+	function midiout(message) {
+		if (output) output.send(message);
+	}
+	function controlchange(num,value) {
+		var message = [0xB0,num,value];
+		// console.log(message);
+		if (output) output.send(message);
+	}
+	function noteon(timestamp,note) {
+		var message = [0x90,note,0x40];
+		// console.log(message);
+		if (output) output.send(message,timestamp);
+	}
+	function noteoff(note) {
+		var message = [0x80,note,0x40];
+		// console.log(message);
+		if (output) output.send(message,timestamp);
+	}
+</script>
+
+</head>
+<body>
+<script  type="text/javascript">
+	midiAccess = navigator.requestMIDIAccess({
+		sysex : false
+	}).then(onMIDISuccess, onMIDIFailure);
+</script>
+<label>MIDI In</label>
+<select id="midiInputSelect" onchange="selectMidiInput()">
+	<option value="1">select input port</option>
+</select>
+<label>MIDI Out</label>
+<select id="midiOutputSelect" onchange="selectMidiOutput()">
+	<option value="1">select output port</option>
+</select>
+<div id="panel1" style="position:absolute; left:10px; top:50px; width:1276px; height:514px; background-image:url(images/JU-06Panel.png)">
+	<div id="sliders" style="position:absolute; left:-70px; top:202px; width:1276px; height:130px;">
+	<input type="range" id="lforate"  class="ju06slider" min="0" max="255" value="0" onchange="onsliderchange(this)" style="left:352px; top:0px;">
+	<input type="range" id="lfodelay" class="ju06slider" min="0" max="255" value="0" onchange="onsliderchange(this)" style="left:397px; top:0px;">
+	<input type="range" id="dcolfo"   class="ju06slider" min="0" max="255" value="0" onchange="onsliderchange(this)" style="left:493px; top:0px;">
+	<input type="range" id="dcopwm"   class="ju06slider" min="0" max="255" value="0" onchange="onsliderchange(this)" style="left:537px; top:0px;">
+	<input type="range" id="dcosub"   class="ju06slider" min="0" max="255" value="0" onchange="onsliderchange(this)" style="left:632px; top:0px;">
+	<input type="range" id="dconoise" class="ju06slider" min="0" max="255" value="0" onchange="onsliderchange(this)" style="left:678px; top:0px;">
+	<input type="range" id="hpffreq"  class="ju06slider" min="0" max="255" value="0" onchange="onsliderchange(this)" style="left:723px; top:0px;">
+	<input type="range" id="vcffreq"  class="ju06slider" min="0" max="255" value="0" onchange="onsliderchange(this)" style="left:768px; top:0px;">
+	<input type="range" id="vcfreso"  class="ju06slider" min="0" max="255" value="0" onchange="onsliderchange(this)" style="left:813px; top:0px;">
+	<input type="range" id="vcfenv"   class="ju06slider" min="0" max="255" value="0" onchange="onsliderchange(this)" style="left:889px; top:0px;">
+	<input type="range" id="vcflfo"   class="ju06slider" min="0" max="255" value="0" onchange="onsliderchange(this)" style="left:934px; top:0px;">
+	<input type="range" id="vcfkybd"  class="ju06slider" min="0" max="255" value="0" onchange="onsliderchange(this)" style="left:979px; top:0px;">
+	<input type="range" id="vcalevel" class="ju06slider" min="0" max="255" value="0" onchange="onsliderchange(this)" style="left:1055px; top:0px;">
+	<input type="range" id="attack"   class="ju06slider" min="0" max="255" value="0" onchange="onsliderchange(this)" style="left:1099px; top:0px;">
+	<input type="range" id="decay"    class="ju06slider" min="0" max="255" value="0" onchange="onsliderchange(this)" style="left:1144px; top:0px;">
+	<input type="range" id="sustain"  class="ju06slider" min="0" max="255" value="0" onchange="onsliderchange(this)" style="left:1189px; top:0px;">
+	<input type="range" id="release"  class="ju06slider" min="0" max="255" value="0" onchange="onsliderchange(this)" style="left:1233px; top:0px;">
+	</div>
+	<div id="switches" style="position:absolute; left:-20px; top:10px; width:1276px; height:130px;">
+	<input type="range" id="pwmsrc"     class="ju06switch" min="0" max="1" value="0" onchange="onsliderchange(this)" style="left:585px; top:120px;">
+	<input type="range" id="vcfenvmode" class="ju06switch" min="0" max="1" value="0" onchange="onsliderchange(this)" style="left:851px; top:192px;">
+	<input type="range" id="vcaenvmode" class="ju06switch" min="0" max="1" value="0" onchange="onsliderchange(this)" style="left:1018px; top:192px;">
+	</div>
+</div>
+<div id="subpanel" style="position:absolute; color:white; font-size:12px; background-color:black; left:10px; top:570px; width:1276px; height:100px;"">
+	<div id="patchname" style="position:absolute; left:10px; top:2px; color:white;">Patch Name:</div>
+	<div id="curvalue" style="position:absolute; left:300px; top:2px; color:white;">value:</div>
+	<div style="position:absolute; left:10px; top:20px;">
+    	portament switch
+    	<input type="button" id="portasw" onclick="onbuttondown(this)" style="position:absolute; top:0px; left:120px; height:20px; background-color:white;">
+    </div>
+	<div style="position:absolute; left:200px; top:20px;">
+    	portament time
+    	<input type="range" id="portatim"  	min="0" max="255" value="0" onchange="onsliderchange(this)" style="position:absolute; top:0px; left:100px;">
+    </div>
+	<div style="position:absolute; left:200px; top:40px;">
+    	delay level
+    	<input type="range" id="dlylev"  	min="0" max="15" value="0" onchange="onsliderchange(this)" style="position:absolute; top:0px; left:100px;">
+    </div>
+	<div style="position:absolute; left:450px; top:40px;">
+    	delay time
+    	<input type="range" id="dlytim"  	min="0" max="15" value="0" onchange="onsliderchange(this)" style="position:absolute; top:0px; left:100px;">
+    </div>
+	<div style="position:absolute; left:700px; top:40px;">
+    	delay feedback
+    	<input type="range" id="dlyfb"  	min="0" max="15" value="0" onchange="onsliderchange(this)">
+    </div>
+	<div style="position:absolute; left:10px; top:60px;">
+    	assign mode
+    	<div  style="position:absolute; top:0px; left:120px; width:200px;">
+    	<input type="button" id="solo"   onclick="onbuttondown(this)" style="background-color:white;">
+    	<input type="button" id="unison" onclick="onbuttondown(this)" style="background-color:white;">
+    	<input type="button" id="poly"   onclick="onbuttondown(this)" style="background-color:white;">
+    	</div>
+    </div>
+	<div style="position:absolute; left:200px; top:60px;">
+    	pitchbend range
+    	<input type="range" id="bendrange"  min="0" max="13" value="0" onchange="onsliderchange(this)" style="position:absolute; top:0px; left:100px;">
+    </div>
+ </div>
+<!-- <script>
+	var panelclick=function(e) {
+		console.log(e);
+	}
+	var panel1=document.getElementById("panel1");
+	panel1.addEventListener("click",panelclick);
+</script>
+ -->
+<script>
+	var panel=new JU06Panel("panel1");
+	document.getElementById("portasw").idstring="portasw";
+	document.getElementById("portasw").panel=panel;
+	document.getElementById("solo").idstring="solo";
+	document.getElementById("solo").panel=panel;
+	document.getElementById("unison").idstring="unison";
+	document.getElementById("unison").panel=panel;
+	document.getElementById("poly").idstring="poly";
+	document.getElementById("poly").panel=panel;
+</script>
+<script>
+	var onsliderchange=function(obj) {
+		//console.log(obj.id);
+		panel.setvalue(obj.id,Number(obj.value));
+		panel.sendcc(obj.id);
+	}
+	var onbuttondown=function(obj) {
+		//console.log(obj.id);
+		panel.onbuttondown(obj);
+	}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+/* Copyright 2016 gotojo All Rights Reserved. */
+.ju06slider {
+	position:absolute; 
+	-webkit-appearance:none;
+	width: 130px; 
+	background: #eee;
+	-webkit-transform: rotate(-90deg);
+}
+.ju06slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	background: #333;
+	width: 41px;
+	height: 18px;
+	background: url("JU-06SliderKnob.png") no-repeat;
+	overflow:hidden;
+}
+
+.ju06switch {
+	position:absolute; 
+	-webkit-appearance:none;
+	width: 30px;
+	background: #eee;
+	-webkit-transform: rotate(-90deg);
+}
+.ju06switch::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	background: #333;
+	width: 18px;
+	height: 18px;
+	background: url("JU-06SwitchKnob.png") no-repeat;
+	overflow:hidden;
+}
+/*input[type="range"]::-webkit-slider-thumb:hover {
+	background: #999;
+	background: url("JU-06SliderKnob.png") no-repeat;
+}
+input[type="range"]::-webkit-slider-thumb:active {
+	background: #888;
+	background: url("JU-06SliderKnob.png") no-repeat;
+}
+*/
