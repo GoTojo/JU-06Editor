@@ -55,6 +55,9 @@
 <select id="midiOutputSelect" onchange="selectMidiOutput()">
 	<option value="1">select output port</option>
 </select>
+<button onclick='factoryreset()'>Factory Reset</button>
+<!-- <button onclick='share()'>Share</button> -->
+<button onclick='sync()'>Sync</button>
 <div id="panel1" style="position:absolute; left:10px; top:50px; width:1276px; height:514px; background-image:url(images/JU-06Panel.png)">
 	<div id="sliders" style="position:absolute; left:-70px; top:202px; width:1276px; height:130px;">
 	<input type="range" id="lforate"  class="ju06slider" min="0" max="255" value="0" onchange="onsliderchange(this)" style="left:352px; top:0px;">
@@ -145,6 +148,15 @@
 	var onbuttondown=function(obj) {
 		//console.log(obj.id);
 		panel.onbuttondown(obj);
+	}
+	var factoryreset=function() {
+		panel.factoryreset();
+	}
+	var share() {
+		
+	}
+	var sync() {
+		panel.sendccall();
 	}
 </script>
 
