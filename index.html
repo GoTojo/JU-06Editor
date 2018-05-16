@@ -56,9 +56,10 @@
 	<option value="1">select output port</option>
 </select>
 <button onclick='factoryreset()'>Factory Reset</button>
-<!-- <button onclick='share()'>Share</button> -->
+<button onclick='share()'>Share</button>
 <button onclick='sync()'>Sync</button>
 <div id="panel1" style="position:absolute; left:10px; top:50px; width:1276px; height:514px; background-image:url(images/JU-06Panel.png)">
+	<div id='sharetextarea' style='font-size:x-small; background-color:white; position:absolute; top:5px; left:10px; width=:100%; visibility:hidden';></div>
 	<div id="sliders" style="position:absolute; left:-70px; top:202px; width:1276px; height:130px;">
 	<input type="range" id="lforate"  class="ju06slider" min="0" max="255" value="0" onchange="onsliderchange(this)" style="left:352px; top:0px;">
 	<input type="range" id="lfodelay" class="ju06slider" min="0" max="255" value="0" onchange="onsliderchange(this)" style="left:397px; top:0px;">
@@ -84,7 +85,7 @@
 	<input type="range" id="vcaenvmode" class="ju06switch" min="0" max="1" value="0" onchange="onsliderchange(this)" style="left:1018px; top:192px;">
 	</div>
 </div>
-<div id="subpanel" style="position:absolute; color:white; font-size:12px; background-color:black; left:10px; top:570px; width:1276px; height:100px;"">
+<div id="subpanel" style="position:absolute; color:white; font-size:12px; background-color:black; left:10px; top:570px; width:1276px; height:100px;">
 	<div id="patchname" style="position:absolute; left:10px; top:2px; color:white;">Patch Name:</div>
 	<div id="curvalue" style="position:absolute; left:300px; top:2px; color:white;">value:</div>
 	<div style="position:absolute; left:10px; top:20px;">
@@ -138,8 +139,23 @@
 	document.getElementById("unison").panel=panel;
 	document.getElementById("poly").idstring="poly";
 	document.getElementById("poly").panel=panel;
+	var applyQuery=function() {
+		var href=location.href.split('?');
+		var query=href[1].split('&');
+		for (var i=0; i<query.length; i++) {
+			var param=query[i].split('=');
+			panel.param.param[param[0]].value=param[1];
+		}
+	}
+	applyQuery();
+	panel.updateall();
 </script>
 <script>
+	document.body.onclick = function(event) {
+		if (event.target.id==='panel'||event.target.id==='switches') {
+			document.getElementById('sharetextarea').style.visibility='hidden';
+		}
+	}
 	var onsliderchange=function(obj) {
 		//console.log(obj.id);
 		panel.setvalue(obj.id,Number(obj.value));
@@ -152,10 +168,21 @@
 	var factoryreset=function() {
 		panel.factoryreset();
 	}
-	var share() {
-		
+	var share=function() {
+		var href=location.href.split('?');
+		var url=href[0];
+		var sharetext=url;
+		var separator='?';
+		for (var key in panel.param.param) {
+			sharetext+=separator;
+			sharetext+=key+'='+panel.param.param[key].value;
+			separator='&';
+		}
+		console.log(sharetext);
+		document.getElementById('sharetextarea').innerText=sharetext;
+		document.getElementById('sharetextarea').style.visibility='visible';
 	}
-	var sync() {
+	var sync=function() {
 		panel.sendccall();
 	}
 </script>
