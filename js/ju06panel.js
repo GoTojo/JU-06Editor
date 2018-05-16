@@ -624,8 +624,8 @@ JU06Panel.prototype = {
         }
     },
     updatepatchname: function() {
-        var name="Patch Name:  "+this.param.name;
-        document.getElementById("patchname").innerHTML=name;
+        var name=this.param.name;
+        document.getElementById("patchname").value=name;
     },
     updateall: function() {
         this.update("dco16");
