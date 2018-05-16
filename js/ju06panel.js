@@ -77,6 +77,8 @@ var JU06Param = function() {
     this.param["bendrange"]  = new JU06ParamObj("bendrange",  0, 24,0,87,false);
     this.mem_bank=-1;
     this.mem_num=-1;
+    this.patch=undefined;
+    this.loadpreset();
 }
 
 JU06Param.prototype = {
@@ -101,14 +103,36 @@ JU06Param.prototype = {
         this.param[id].setmidivalue(value); 
     },
     save: function(num) {
+        if (!this.patch) return;
+        var patch=this.patch[num];
+        for (var i in this.param) {
+            patch[i]=this.param[i].value;
+        }
+        patch.name=this.name;
+        localStorage.removeItem('userset');
+        localStorage.setItem('userset',JSON.stringify(this.patch));
     },
     load: function(num) {
-        var patch=eval("patch"+(num+1));
+        if (!this.patch) return;
+        var patch=this.patch[num];
         for (var i in this.param) {
             this.param[i].value=patch[i];
         }
         this.name=patch.name;
         // console.log(this.name);
+    },
+    loadpreset: function() {
+        var data = localStorage.getItem('userset');
+        if (data == null) {
+            this.factoryreset();
+        } else {
+            this.patch = JSON.parse(data);
+        }
+    },
+    factoryreset: function() {
+        localStorage.removeItem('userset');
+        localStorage.setItem('userset', JSON.stringify(presetpatch));
+        this.patch = presetpatch;
     },
     sendcc: function(id) {
         controlchange(this.getccnum(id),this.getmidivalue(id));
@@ -192,8 +216,13 @@ var JU06Panel = function(parent) {
     this.switch["unison"]  = document.getElementById("unison");
     this.switch["poly"]  = document.getElementById("poly");
 
+    this.createwrittenpanel(parent);
+
     this.disp0=new JU06Disp(678,355,"disp0",parent);
     this.disp1=new JU06Disp(712,355,"disp1",parent);
+
+    this.writetimer=undefined;
+    this.writeflag=false;
 
     // this.button["portasw"]=new SimpleButton( 10, 10, 10, 10, "portasw", "subpanel", this.onbuttondown, this.onbuttonup, this);     
 
@@ -202,6 +231,20 @@ var JU06Panel = function(parent) {
 JU06Panel.prototype = {
     createbutton: function(left,top,id,parent,panel) {
         this.button[id]=new JU06Button( left, top, id, parent, this.onbuttondown, this.onbuttonup, panel);     
+    },
+    createwrittenpanel: function(parent) {
+        var elem = document.createElement("div");
+        elem.innerHTML = 'saved';
+        elem.style.color='black';
+        elem.style.backgroundColor='white';
+        elem.style.position='absolute'
+        elem.style.top='323px';
+        elem.style.left='674px';
+        elem.style.width='74px';
+        elem.style.textAlign='center';
+        elem.style.visibility='hidden';
+        document.getElementById(parent).appendChild(elem);
+        this.writtenpanel=elem;
     },
     onbuttondown: function(obj) {
         var id=obj.idstring;
@@ -256,28 +299,17 @@ JU06Panel.prototype = {
             obj.panel.settmpbank(7);
             break;
         case "pad9":
-            obj.panel.setmemnum(0);
-            break;
         case "pad10":
-            obj.panel.setmemnum(1);
-            break;
         case "pad11":
-            obj.panel.setmemnum(2);
-            break;
         case "pad12":
-            obj.panel.setmemnum(3);
-            break;
         case "pad13":
-            obj.panel.setmemnum(4);
-            break;
         case "pad14":
-            obj.panel.setmemnum(5);
-            break;
         case "pad15":
-            obj.panel.setmemnum(6);
-            break;
         case "pad16":
-            obj.panel.setmemnum(7);
+            obj.panel.writetimer=setTimeout(function() {
+                obj.panel.showwritten();
+                obj.panel.writeflag=true;
+            },2000);
             break;
         case "chorus1":
             if (window.event.shiftKey) {
@@ -336,10 +368,40 @@ JU06Panel.prototype = {
         default:
             break;
         }
-        obj.panel.update(id);
-        obj.panel.updatedisp();
+        //obj.panel.update(id);
+        //obj.panel.updatedisp();
     },
     onbuttonup: function(obj) {
+        if (obj.panel.writetimer) clearTimeout(obj.panel.writetimer);
+        obj.panel.writetimer=undefined;
+        var id=obj.idstring;
+        switch (id) {
+        case "pad9":
+        case "pad10":
+        case "pad11":
+        case "pad12":
+        case "pad13":
+        case "pad14":
+        case "pad15":
+        case "pad16":
+        {
+            var num=parseInt(id.slice(3))-9;
+            if (obj.panel.writeflag) {
+                var bank=(obj.panel.tmpbank>=0)?obj.panel.tmpbank:obj.panel.membank;
+                if (bank>=0) {
+                    var writenum=bank*8+num;
+                    obj.panel.param.save(writenum);
+                }
+                obj.panel.writeflag=false;
+            }
+            obj.panel.setmemnum(num);
+        }
+            break;
+        default:
+            break;
+        }
+        obj.panel.update(id);
+        obj.panel.updatedisp();
     },
     setvalue: function(id,value) {
         if ((id=="bendrange")&&(value>12)) value=24;
@@ -371,6 +433,12 @@ JU06Panel.prototype = {
     sendcc: function(id) {
         this.param.sendcc(id);
     },
+    sendccall: function() {
+        this.param.sendccall();
+    },
+    factoryreset: function() {
+        this.param.factoryreset();
+    },
     midiin: function(event) {
         var status=event.data[0]&0xF0;
         if (status==0xB0) {
@@ -378,7 +446,14 @@ JU06Panel.prototype = {
             this.update(this.param.getidfromcc(event.data[1]));
         }
     },
+    showwritten() {
+        this.writtenpanel.style.visibility='visible';
+    },
+    hidewritten() {
+        this.writtenpanel.style.visibility='hidden';
+    },
     update: function(id) {
+        this.hidewritten();
         var elem=document.getElementById(id);
         switch (id) {
         case "dcorange":
@@ -549,8 +624,8 @@ JU06Panel.prototype = {
         }
     },
     updatepatchname: function() {
-        var name="Patch Name:  "+this.param.name;
-        document.getElementById("patchname").innerHTML=name;
+        var name=this.param.name;
+        document.getElementById("patchname").value=name;
     },
     updateall: function() {
         this.update("dco16");
