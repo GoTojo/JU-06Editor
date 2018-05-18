@@ -149,12 +149,12 @@
 			if (param[0]==='name') {
 				var data=param[1].split('%');
 				var name='';
-				for (var i=0; i<data.length; i++) {
-					name+=String.fromCharCode(parseInt(data[i]));
+				for (var j=0; j<data.length; j++) {
+					name+=String.fromCharCode(parseInt(data[j]));
 				}
 				panel.param.name=name;
 			} else {
-				panel.param.param[param[0]].value=parseInt(param[1]);
+				panel.setvalue(param[0],parseInt(param[1]));
 			}
 		}
 	}
@@ -177,7 +177,7 @@
 		panel.onbuttondown(obj);
 	}
 	var onnamechange=function(obj) {
-		panel.param.name=obj.value;
+		panel.param.setname(obj.value);
 	}
 	var factoryreset=function() {
 		panel.factoryreset();
@@ -186,13 +186,14 @@
 		var href=location.href.split('?');
 		var url=href[0];
 		var sharetext=url;
+		var name=panel.param.getname();
 		sharetext+='?name=';
-		for (var i=0;i<panel.param.name.length; i++) {
-			sharetext+='%'+panel.param.name.charCodeAt(i);
+		for (var i=0;i<name.length; i++) {
+			sharetext+='%'+name.charCodeAt(i);
 		}
 		for (var key in panel.param.param) {
 			sharetext+='&';
-			sharetext+=key+'='+panel.param.param[key].value;
+			sharetext+=key+'='+panel.getvalue(key,value);
 		}
 		console.log(sharetext);
 		document.getElementById('sharetextarea').innerText=sharetext;

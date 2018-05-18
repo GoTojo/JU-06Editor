@@ -102,6 +102,12 @@ JU06Param.prototype = {
         if (id==-1) return;
         this.param[id].setmidivalue(value); 
     },
+    setname: function(name) {
+        this.name=name;
+    },
+    getname: function() {
+        return this.name;
+    },
     save: function(num) {
         if (!this.patch) return;
         var patch=this.patch[num];
