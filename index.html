@@ -193,7 +193,7 @@
 		}
 		for (var key in panel.param.param) {
 			sharetext+='&';
-			sharetext+=key+'='+panel.getvalue(key,value);
+			sharetext+=key+'='+panel.param.getvalue(key);
 		}
 		console.log(sharetext);
 		document.getElementById('sharetextarea').innerText=sharetext;

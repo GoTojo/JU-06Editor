@@ -409,6 +409,9 @@ JU06Panel.prototype = {
         obj.panel.update(id);
         obj.panel.updatedisp();
     },
+    getvalue: function(id) {
+        return this.param.getvalue(id);
+    },
     setvalue: function(id,value) {
         if ((id=="bendrange")&&(value>12)) value=24;
         this.param.setvalue(id,value);
