@@ -16,7 +16,9 @@ click bank button and number button
 #### Storing Patch
 holdign click down number button more than 2 seconds.
 #### buttons
-|[FactoryReset]|initalize patch memory|
-|[Share]|create a text for sharing|
-|[Sync]|send all parameters to your JU-06|
+| button | function |
+----|---- 
+| FactoryReset | initalize patch memory |
+| Share | create a text for sharing |
+| Sync | send all parameters to your JU-06 |
 
