@@ -374,8 +374,8 @@ JU06Panel.prototype = {
         default:
             break;
         }
-        //obj.panel.update(id);
-        //obj.panel.updatedisp();
+        obj.panel.update(id);
+        obj.panel.updatedisp();
     },
     onbuttonup: function(obj) {
         if (obj.panel.writetimer) clearTimeout(obj.panel.writetimer);
@@ -406,8 +406,8 @@ JU06Panel.prototype = {
         default:
             break;
         }
-        obj.panel.update(id);
-        obj.panel.updatedisp();
+        // obj.panel.update(id);
+        // obj.panel.updatedisp();
     },
     getvalue: function(id) {
         return this.param.getvalue(id);
