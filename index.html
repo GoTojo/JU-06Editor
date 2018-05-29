@@ -198,6 +198,12 @@
 		console.log(sharetext);
 		document.getElementById('sharetextarea').innerText=sharetext;
 		document.getElementById('sharetextarea').style.visibility='visible';
+		var range=document.createRange();
+		range.selectNodeContents(document.getElementById('sharetextarea'));
+		var selection = window.getSelection();
+		selection.removeAllRanges();
+		selection.addRange(range);
+		document.execCommand('copy');
 	}
 	var sync=function() {
 		panel.sendccall();
